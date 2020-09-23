@@ -1,0 +1,40 @@
+
+<flowSequence xmlns="http://dynamo.documill.com/schemas/flow"
+              xmlns:fl="http://dynamo.documill.com/schemas/taglib/core/flow"
+              xmlns:cv="http://dynamo.documill.com/schemas/taglib/core/var"
+              xmlns:htmlex="http://dynamo.documill.com/schemas/taglib/html/external"
+              xmlns:cc="http://dynamo.documill.com/schemas/taglib/core/conditional"
+              xmlns:pdf="http://dynamo.documill.com/schemas/taglib/pdf"
+              id="ComposeAll"
+              name="Subroutine Flow">
+  <startFlow id="Start">
+    <events>
+      <defaultEvent step="Compose" />
+    </events>
+    <steps>
+      <step id="Compose" name="Compose">
+        <logic>
+          <cv:set var="editableAreaClass" value="background-color-transparent" />
+          <fl:composeContent template="${doc[&quot;Document&quot;]}" var="composedDoc" hideFromDataTab="true" editable="false" automaticElementIDs="false" />
+          <htmlex:scanHeadings var="headings" file="${composedDoc}" selectors="" />
+          <cc:if test="${not empty headings}">
+            <fl:composeContent template="${doc[&quot;Document&quot;]}" var="composedDoc" hideFromDataTab="true" editable="false" automaticElementIDs="false" />
+          </cc:if>
+          <fl:next step="Create PDF" />
+        </logic>
+      </step>
+      <step id="Create PDF" name="Create PDF">
+        <logic>
+          <pdf:exportPDF var="fullPDF" document="${composedDoc}" />
+          <cv:set var="fileName" value="${fullPDF.title}" hideFromDataTab="true" />
+          <fl:next step="OK" />
+        </logic>
+      </step>
+      <step id="OK" name="OK">
+        <logic>
+          <cv:set var="flowStatus" value="ok" />
+        </logic>
+      </step>
+    </steps>
+  </startFlow>
+</flowSequence>

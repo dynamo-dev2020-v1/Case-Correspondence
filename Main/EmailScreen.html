@@ -1,0 +1,96 @@
+<!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" id="Main/EmailScreen.html" name="Main/Edit emailScreen.html"><head>
+  <meta charset="utf-8" />
+  <meta name="dynamo-type" content="form" />
+  <link rel="stylesheet" type="dynamo/css" href="Main/style.css" />
+  <link rel="stylesheet" type="dynamo/css" href="Email Styles/style.css" />
+</head>
+
+<body>
+  <div id="screen-container" class="screen slds">
+    <div id="screen-header">
+
+
+      <div id="screen-header-left">
+        <span style="font-size: 1.5em" dyn-content="dynDocName">[Dynamo Document Name]</span>
+        <span dyn-if="not empty versionNumberSaved" class="slds-badge" dyn-content="${&#039;ver &#039;}${versionNumberSaved}">[version]</span>
+        <span dyn-if="not empty saveTime">&#160;|&#160;</span><span dyn-if="not empty saveMessage" dyn-content="saveMessage">[message]</span>&#160;<span dyn-content="saveTime" dyn-if="not empty saveTime" dyn-content-format="&#039;justTime&#039;">[dateTime]</span>
+      </div>
+
+      <div id="screen-header-center" style="font-size: 1.5em"><span>Email Message</span> <button class="form-inline slds-button slds-button--neutral slds-button--brand" type="submit" name="send" dyn-next="Check if modified" dyn-if="buttonSend" dyn-next-message="Sending Email.">Send</button></div>
+
+
+      <div id="screen-header-right" class="button-group">
+
+        <button type="submit" dyn-next="Check if modified" class="form-inline slds-button slds-button--neutral" name="approve" dyn-if="buttonApprove" dyn-next-message="Approving">Approve</button>
+
+        <button type="submit" dyn-next="Check if modified" class="form-inline slds-button slds-button--neutral" name="reject" dyn-if="buttonReject" dyn-next-message="Rejecting">Reject</button>
+
+        <button type="submit" dyn-next="Check if modified" class="form-inline slds-button slds-button--neutral" name="requestApproval" dyn-if="buttonRequestApproval" dyn-next-message="Preparing">Request Approval</button>
+
+        <button type="submit" dyn-next="Select attachments" class="form-inline slds-button slds-button--neutral" name="attachments" dyn-if="buttonEdit" dyn-next-message="Opening attachments">Attachments</button>
+
+        <button type="submit" dyn-next="Compare" class="form-inline slds-button slds-button--neutral" name="compare" dyn-next-message="Starting to compare" dyn-if="buttonCompare">Compare</button><button type="submit" dyn-next="Save all" class="form-inline slds-button slds-button--neutral slds-button--brand" name="save" dyn-next-message="Saving" dyn-if="buttonEdit">Save</button>
+
+        <span style="font-size: 1.1em; margin-left: 10px; margin-right: 10px;" dyn-if="not empty dynDocStatus" dyn-content="dynDocStatus">[dynDocStatus]</span>
+
+        <button type="submit" dyn-next="To draft" class="form-inline slds-button slds-button--neutral" name="draft" dyn-if="buttonDraft" dyn-next-message="Refreshing data">Change to draft</button>
+
+        <button style="color: firebrick" class="form-inline slds-button slds-button--neutral" type="submit" dyn-next="Check if modified" name="exit" dyn-next-message="Exit">Exit</button>
+      </div>
+    </div>
+
+
+    <div id="screen-content">
+
+      <div id="screen-content-left" dyn-if="useCommentPane" class="group">
+        <dyn-sfdc-chatter-doclinker record-id="dynDocId" mention-options="mentionOptions" starting-post-id="postID" /></div>
+
+      <div id="screen-content-center">
+        <div id="editable-toolbarContainer"></div>
+
+        <div id="screen-document" class="scrollbar">
+
+          <div class="emailHeaderDiv">
+            <button name="to" dyn-if="buttonEdit" class="emailReceiverButton" type="submit" dyn-next="Handle buttons" dyn-next-message="Select contacts">To</button>
+            <span class="emailHeaderLabel" dyn-if="!buttonEdit">To</span>
+            <span class="emailReceiver" dyn-repeat="conf.selectedToContacts" dyn-repeat-var="i" dyn-content="i.Name">[name]</span>
+
+          </div>
+          <div class="emailHeaderDiv">
+            <button name="cc" dyn-if="buttonEdit" class="emailReceiverButton" type="submit" dyn-next="Handle buttons" dyn-next-message="Select contacts">Cc</button>
+            <span class="emailHeaderLabel" dyn-if="!buttonEdit">Cc</span>
+            <span class="emailReceiver" dyn-repeat="conf.selectedCcContacts" dyn-repeat-var="i" dyn-content="i.Name">[name]</span>
+
+          </div>
+          <div id="emailHeaderDivSubject" class="emailHeaderDiv">
+            <input id="emailSubject" dyn-if="buttonEdit" name="emailSubject" style="width: 100%" autocapitalize="off" autocomplete="off" dyn-bound-value="conf.emailSubject" />
+            <span dyn-if="!buttonEdit" dyn-content="conf.emailSubject">[subject]</span>
+          </div>
+          <div id="emailHeaderDivAttachments" class="emailHeaderDiv" dyn-if="not empty conf.selectedFiles">
+
+            <div class="attachmentBox" dyn-repeat="conf.selectedFiles" dyn-repeat-var="i">
+              <div class="attachmentIcon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="30px" height="30px"><g fill="#fff" stroke="#39c" stroke-linecap="round" stroke-linejoin="round" stroke-width="1"><path d="M30.5 13.5V34h-20V7.5h14" /><path d="M24.5 13.5h6l-6-6v6z" /></g></svg>
+              </div>
+              <div class="attachmentInfo">
+                <div class="attachmentTitle" dyn-content="${i.Label}">[title]</div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <div id="composedContent" dyn-content="composedEmail">[Email]</div>
+
+        </div>
+      </div>
+
+      <div id="screen-content-right" dyn-if="useClausePane" class="group">
+        <dyn-sfdc-record-picker content-field="dynamo__Clause_Text__c" filter-fields="dynamo__Clause_Language__c:${caseVar.Language__c},dynamo__Category__c:Support,Subcategory__c:${caseVar.Type}" name="selectedRecord" object="dynamo__Clause__c" recent-tab-label="Recent Clauses" search-tab-label="Search" title-field="dynamo__Title__c" /></div>
+    </div>
+  </div>
+
+
+
+
+</body></html>

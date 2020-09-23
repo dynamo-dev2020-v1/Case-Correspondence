@@ -1,0 +1,86 @@
+
+<flowSequence xmlns="http://dynamo.documill.com/schemas/flow"
+              xmlns:cc="http://dynamo.documill.com/schemas/taglib/core/conditional"
+              xmlns:cl="http://dynamo.documill.com/schemas/taglib/core/loop"
+              xmlns:cv="http://dynamo.documill.com/schemas/taglib/core/var"
+              xmlns:dbg="http://dynamo.documill.com/schemas/taglib/debug"
+              xmlns:ddoc="http://dynamo.documill.com/schemas/taglib/dynamodoc"
+              xmlns:dt="http://dynamo.documill.com/schemas/taglib/date"
+              xmlns:fl="http://dynamo.documill.com/schemas/taglib/core/flow"
+              xmlns:fo="http://dynamo.documill.com/schemas/taglib/format"
+              xmlns:fs="http://dynamo.documill.com/schemas/taglib/formselect"
+              xmlns:pdf="http://dynamo.documill.com/schemas/taglib/pdf"
+              xmlns:sfch="http://dynamo.documill.com/schemas/taglib/salesforce/chatter"
+              xmlns:sfcrud="http://dynamo.documill.com/schemas/taglib/salesforce/crud"
+              xmlns:sfem="http://dynamo.documill.com/schemas/taglib/salesforce/email"
+              xmlns:sff="http://dynamo.documill.com/schemas/taglib/salesforce/fields"
+              xmlns:sffile="http://dynamo.documill.com/schemas/taglib/salesforce/file"
+              xmlns:soql="http://dynamo.documill.com/schemas/taglib/salesforce/soql"
+              xmlns:wizard="http://dynamo.documill.com/schemas/taglib/wizard"
+              xmlns:xlsxd="http://dynamo.documill.com/schemas/taglib/xlsxdata"
+              xmlns:es="http://dynamo.documill.com/schemas/taglib/esignature"
+              xmlns:dex="http://dynamo.documill.com/schemas/taglib/docx/external"
+              xmlns:sfpub="http://dynamo.documill.com/schemas/taglib/salesforce/publish"
+              id="SendEmail"
+              name="Subroutine Flow">
+  <startFlow id="Start">
+    <events>
+      <defaultEvent step="Start send email" />
+    </events>
+    <steps>
+      <step id="Start send email" name="Start send email">
+        <logic>
+          <fl:setMessage message="Sending Email.." />
+          <fl:next step="Send email" />
+        </logic>
+      </step>
+      <step id="Send email" name="Send email" onError="Error">
+        <logic>
+          <fl:setMessage message="Sending Email" />
+          <sfem:mail relatedTo="${id}" subject="${conf.emailSubject}">
+            <cl:forEach value="${conf.selectedToContacts}" var="i">
+              <sfem:to value="${i.Email}" />
+            </cl:forEach>
+            <cl:forEach value="${conf.selectedCcContacts}" var="i">
+              <sfem:cc value="${i.Email}" />
+            </cl:forEach>
+            <cl:forEach value="${conf.selectedBccContacts}" var="i">
+              <sfem:bcc value="${i.Email}" />
+            </cl:forEach>
+            <sfem:htmlBody value="${composedEmail}" />
+            <cl:forEach value="${conf.selectedFiles}" var="i">
+              <sfem:recordAttachment value="${i.LatestPublishedVersionId}" />
+            </cl:forEach>
+          </sfem:mail>
+          <fl:next step="Update status" />
+        </logic>
+      </step>
+      <step id="Update status" name="Update status" onError="Error">
+        <logic >
+          <fl:setMessage message="Sending Email..." />
+          <cv:set var="dynDocStatus" value="Sent" />
+          <sfcrud:update type="dynamo__Dynamo_Document__c">
+            <sfcrud:field name="Id" value="${dynDocId}" />
+            <sfcrud:field name="dynamo__Document_Status__c" value="${dynDocStatus}" />
+          </sfcrud:update>
+          <sfcrud:create type="dynamo__Dynamo_Document_Event__c" var="dview">
+            <sfcrud:field name="dynamo__Type__c" value="Email" />
+            <sfcrud:field name="dynamo__Dynamo_Document__c" value="${dynDocId}" />
+            <sfcrud:field name="dynamo__Message__c" value="Email sent" />
+          </sfcrud:create>
+          <fl:next step="OK" />
+        </logic>
+      </step>
+      <step id="Error" name="Error">
+        <logic>
+          <cv:set var="flowStatus" value="error" />
+        </logic>
+      </step>
+      <step id="OK" name="OK">
+        <logic>
+          <cv:set var="flowStatus" value="ok" />
+        </logic>
+      </step>
+    </steps>
+  </startFlow>
+</flowSequence>

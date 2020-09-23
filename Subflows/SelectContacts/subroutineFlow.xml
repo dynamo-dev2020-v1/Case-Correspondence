@@ -1,0 +1,99 @@
+
+<flowSequence xmlns="http://dynamo.documill.com/schemas/flow"
+              xmlns:fl="http://dynamo.documill.com/schemas/taglib/core/flow"
+              xmlns:soql="http://dynamo.documill.com/schemas/taglib/salesforce/soql"
+              xmlns:cc="http://dynamo.documill.com/schemas/taglib/core/conditional"
+              xmlns:cv="http://dynamo.documill.com/schemas/taglib/core/var"
+              xmlns:cl="http://dynamo.documill.com/schemas/taglib/core/loop"
+              id="SelectContacts"
+              name="Subroutine Flow">
+  <startFlow id="Start">
+    <events>
+      <defaultEvent step="Start select contacts" />
+    </events>
+    <steps>
+      <step id="Start select contacts" name="Start select contacts" onError="Error">
+        <logic>
+          <!-- input: -->
+          <!-- accountId -->
+          <!-- selectedContacts -->
+          <!-- output: -->
+          <!-- selectedContacts -->
+          <cc:choose>
+            <cc:when test="${not empty availableContacts}">
+              <fl:next step="Selection" label="Cached contacts" />
+            </cc:when>
+            <cc:otherwise>
+              <cc:choose>
+                <!-- Case -->
+                <cc:when test="${id.startsWith(&apos;500&apos;)}">
+                  <fl:next step="Case role contacts" label="If case" />
+                </cc:when>
+                <cc:otherwise>
+                  <fl:next step="Account contacts" label="Query account" />
+                </cc:otherwise>
+              </cc:choose>
+            </cc:otherwise>
+          </cc:choose>
+        </logic>
+      </step>
+      <step id="Case role contacts" name="Case role contacts" onError="Error">
+        <logic>
+          <soql:query var="contacts" select="SELECT Role, Contact.Name, Contact.Salutation, Contact.Email, Contact.Id, Cases.Id FROM CaseContactRole where Cases.Id = &apos;${id}&apos;" />
+          <cl:forEach value="${contacts}" var="role">
+            <cv:filter value="${selectedContacts}" var="matches" where="${x.Id == role.Contact.Id}" itemName="x" />
+            <cc:if test="${matches.size() == 0}">
+              <cv:setMap var="entry">
+                <cv:addMapEntry key="Id" value="${role.Contact.Id}" />
+                <cv:addMapEntry key="Name" value="${role.Contact.Name}" />
+                <cv:addMapEntry key="Email" value="${role.Contact.Email}" />
+                <cv:addMapEntry key="Label" value="${role.Role}: ${role.Contact.Salutation} ${role.Contact.Name} (${role.Contact.Email})" />
+              </cv:setMap>
+              <cv:addItem collection="${availableContacts}" value="${entry}" />
+            </cc:if>
+          </cl:forEach>
+          <fl:next step="Account contacts" />
+        </logic>
+      </step>
+      <step id="Account contacts" name="Account contacts" onError="Error">
+        <logic>
+          <cc:choose>
+            <cc:when test="${cas.Account.IsPersonAccount}" />
+            <cc:otherwise>
+              <soql:query select="SELECT Id, Salutation, Name, Email FROM Contact where Account.Id = &apos;${accountId}&apos;" var="contacts" />
+              <cl:forEach value="${contacts}" var="contact">
+                <cv:filter value="${selectedContacts}" var="matches" where="${x.Id == contact.Id}" itemName="x" />
+                <cc:if test="${matches.size() == 0}">
+                  <cv:setMap var="entry">
+                    <cv:addMapEntry key="Id" value="${contact.Id}" />
+                    <cv:addMapEntry key="Name" value="${contact.Name}" />
+                    <cv:addMapEntry key="Email" value="${contact.Email}" />
+                    <cv:addMapEntry key="Label" value="${contact.Salutation} ${contact.Name} (${contact.Email})" />
+                  </cv:setMap>
+                  <cv:addItem collection="${availableContacts}" value="${entry}" />
+                </cc:if>
+              </cl:forEach>
+            </cc:otherwise>
+          </cc:choose>
+          <fl:next step="Selection" />
+        </logic>
+      </step>
+      <screenStep id="Selection" name="Selection" screen="Subflows/SelectContacts/SelectionScreen.html" />
+      <step id="OK" name="OK">
+        <logic>
+          <cv:set var="flowStatus" value="ok" />
+        </logic>
+      </step>
+      <step id="Error" name="Error">
+        <logic>
+          <cv:set var="flowStatus" value="error" />
+        </logic>
+      </step>
+      <step id="Cancel" name="Cancel">
+        <logic >
+          <cv:set var="flowStatus" value="cancel" />
+        </logic>
+      </step>
+    </steps>
+  </startFlow>
+</flowSequence>

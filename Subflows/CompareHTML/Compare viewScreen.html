@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html id="CompareHTML/Compare viewScreen.html" name="CompareHTML/Compare viewScreen.html">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="dynamo-type" content="form" />
+  <link rel="stylesheet" type="dynamo/css" href="Main/style.css" />
+  <link rel="stylesheet" type="dynamo/css" href="Email Styles/style.css" />
+</head>
+
+<body>
+  <div id="screen-container" class="screen slds">
+    <div id="screen-header">
+
+
+      <div id="screen-header-left"></div>
+
+      <div id="screen-header-center" style="font-size: 1.5em"><span>Comparing version </span>
+        <span dyn-content="latest.VersionNumber">[latest]</span> to <span dyn-content="prev.VersionNumber">[previous]</span></div>
+
+
+      <div id="screen-header-right" class="button-group">
+
+        <button type="submit" dyn-next="OK" class="form-inline slds-button slds-button--neutral" name="close" dyn-next-message="One moment">Close</button>
+
+      </div>
+    </div>
+
+
+    <div id="screen-content">
+
+      <div id="screen-content-left" dyn-if="useCommentPane" class="group"></div>
+
+      <div id="screen-content-center">
+
+        <div id="screen-document" class="scrollbar">
+
+          <div id="composedContent" dyn-diff="prevFile" dyn-diff-newer="latestFile">[comparison]</div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+</body>
+
+</html>

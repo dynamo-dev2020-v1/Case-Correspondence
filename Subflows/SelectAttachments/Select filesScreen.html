@@ -1,0 +1,76 @@
+<!DOCTYPE html><html xmlns="http://dynamo.documill.com/schemas/HTMLScreen" id="SelectAttachments/Select filesScreen.html" name="SelectAttachments/Select filesScreen.html"><head>
+  <meta charset="utf-8" />
+  <meta name="dynamo-type" content="form" />
+  <link rel="stylesheet" type="dynamo/css" href="Main/style.css" />
+</head>
+
+<body>
+  <div id="screen-container" class="screen">
+
+    <div id="screen-header">
+
+      <div id="screen-header-left"></div>
+
+      <div id="screen-header-center" style="font-size: 1.8em"><span>Email Attachments</span></div>
+
+      <div id="screen-header-right" class="button-group">
+
+        <button type="submit" dyn-next="OK" style="color: green" class="form-inline slds-button slds-button--neutral" dyn-next-message=" " name="ok">OK</button>
+        <button name="cancel" type="submit" dyn-submit="false" dyn-next="Cancel" style="color: firebrick" class="form-inline slds-button slds-button--neutral" dyn-next-message=" ">Cancel</button>
+
+      </div>
+    </div>
+
+    <div id="multiSelectControl" class="multiSelectControl" dyn-bound-multi-select-options="availableFiles" dyn-bound-multi-select="conf.selectedFiles" dyn-bound-multi-select-option-label="&#039;Label&#039;">
+
+      <div class="multiSelectSelection">
+        <div>
+          <label class="multiSelectSelectionLabel" for="dynBoundMultiSelectOptions">Available files</label>
+        </div>
+
+        <div>
+          <select id="dynBoundMultiSelectOptions" class="dynBoundMultiSelect-options" size="13">
+                <option></option>
+              </select>
+        </div>
+
+      </div>
+
+      <div class="multiSelectAddRemoveButtons">
+        <div>
+          <button type="button" class="slds-button slds-button--neutral slds-button--small dynBoundMultiSelect-add">Add &gt;</button>
+        </div>
+        <div>
+          <button type="button" class="slds-button slds-button--neutral slds-button--small dynBoundMultiSelect-remove">&lt; Remove</button>
+        </div>
+      </div>
+
+      <div class="multiSelectSelection">
+        <div>
+          <label class="multiSelectSelectionLabel" for="dynBoundMultiSelectSelected">Selected files</label>
+        </div>
+
+        <div>
+          <select id="dynBoundMultiSelectSelected" class="dynBoundMultiSelect-selected" size="13"><option></option></select>
+        </div>
+
+      </div>
+
+      <div class="multiSelectUpDownButtons">
+        <div>
+          <button type="button" class="slds-button slds-button--neutral slds-button--small dynBoundMultiSelect-up">Up</button>
+        </div>
+        <div>
+          <button type="button" class="slds-button slds-button--neutral slds-button--small dynBoundMultiSelect-down">Down</button>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+
+
+</body></html>
